@@ -1,6 +1,8 @@
 mod auth;
 mod bug_report;
 mod commands;
+#[cfg(target_os = "macos")]
+mod dmg_guard;
 mod engine_supervisor;
 mod houston_prompt;
 mod logging;
@@ -65,6 +67,14 @@ impl SupervisorCallbacks for TauriSupervisorCallbacks {
 }
 
 pub fn run() {
+    // First-launch DMG guard (macOS only). If we were double-clicked from
+    // inside the installer DMG (path under /Volumes/…), show a native
+    // dialog asking the user to move Houston to Applications, do the
+    // copy + relaunch, and exit this process. Must run BEFORE Sentry +
+    // logging init so the in-DMG instance never touches `~/.houston/`.
+    #[cfg(target_os = "macos")]
+    dmg_guard::handle_if_needed();
+
     // `houston_dir()` flips to `~/.dev-houston/` in debug builds so
     // `pnpm tauri dev` stays isolated from an installed release of Houston.
     let houston = houston_tauri::houston_db::db::houston_dir();
