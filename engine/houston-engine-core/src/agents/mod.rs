@@ -16,6 +16,7 @@ pub mod activity;
 pub mod config;
 pub mod files;
 mod learnings_context;
+pub mod meetings;
 pub mod prompt;
 pub mod routine_runs;
 pub mod routines;
